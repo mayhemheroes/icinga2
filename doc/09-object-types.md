@@ -1391,9 +1391,9 @@ Configuration Attributes:
   environment               | String                | **Optional.** Specify the Icinga environment. This overrides the `Environment` constant specified in the configuration or on the CLI with `--define`. Defaults to empty.
 
 
-### IcingaDB <a id="objecttype-icingadb"></a>
+### IcingaDB <a id="icingadb"></a>
 
-The IcingaDB object implements the [icingadb feauture](14-features.md#core-backends-icingadb).
+The `IcingaDB` object implements the [Icinga DB feature](14-features.md#icinga-db).
 
 Example:
 
@@ -1409,10 +1409,10 @@ Configuration Attributes:
 
   Name                      | Type                  | Description
   --------------------------|-----------------------|----------------------------------
-  host                      | String                | **Optional.** Redis host for IcingaDB. Defaults to `127.0.0.1`.
-  port                      | Number                | **Optional.** Redis port for IcingaDB. Defaults to `6380`.
-  path                      | String                | **Optional.** Redix unix socket path. Can be used instead of `host` and `port` attributes.
-  password                  | String                | **Optional.** Redis auth password for IcingaDB.
+  host                      | String                | **Optional.** Redis host. Defaults to `127.0.0.1`.
+  port                      | Number                | **Optional.** Redis port. Defaults to `6380` since the Redis server provided by the `icingadb-redis` package listens on that port.
+  path                      | String                | **Optional.** Redis unix socket path. Can be used instead of `host` and `port` attributes.
+  password                  | String                | **Optional.** Redis auth password.
   enable\_tls               | Boolean               | **Optional.** Whether to use TLS.
   cert\_path                | String                | **Optional.** Path to the certificate.
   key\_path                 | String                | **Optional.** Path to the private key.
