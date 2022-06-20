@@ -433,11 +433,9 @@ bool ConfigItem::CommitNewItems(const ActivationContext::Ptr& context, WorkQueue
 		<< "Committing " << items.size() << " new items.";
 #endif /* I2_DEBUG */
 
-	for (const auto& ip : items)
-		newItems.push_back(ip.first);
-
 	std::set<Type::Ptr> types;
 	std::set<Type::Ptr> completed_types;
+	std::atomic<int> itemsCount(0);
 
 	for (const Type::Ptr& type : Type::GetAllTypes()) {
 		if (ConfigObject::TypeInstance->IsAssignableFrom(type))
@@ -464,7 +462,7 @@ bool ConfigItem::CommitNewItems(const ActivationContext::Ptr& context, WorkQueue
 				continue;
 
 			std::atomic<int> committed_items(0);
-			upq.ParallelFor(items, [&type, &committed_items](const ItemPair& ip) {
+			upq.ParallelFor(items, [&type, &committed_items, &itemsCount, &newItems](const ItemPair& ip) {
 				const ConfigItem::Ptr& item = ip.first;
 
 				if (item->m_Type != type)
@@ -478,7 +476,11 @@ bool ConfigItem::CommitNewItems(const ActivationContext::Ptr& context, WorkQueue
 					return;
 				}
 
+				itemsCount++;
 				committed_items++;
+
+				std::unique_lock<std::mutex> lock(m_Mutex);
+				newItems.emplace_back(item);
 			});
 
 			upq.Join();
@@ -498,7 +500,7 @@ bool ConfigItem::CommitNewItems(const ActivationContext::Ptr& context, WorkQueue
 
 #ifdef I2_DEBUG
 	Log(LogDebug, "configitem")
-		<< "Committed " << items.size() << " items.";
+		<< "Committed " << itemsCount.load() << " items.";
 #endif /* I2_DEBUG */
 
 	completed_types.clear();
