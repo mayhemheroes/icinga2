@@ -257,6 +257,15 @@ bool ObjectQueryHandler::HandleRequest(
 			if (!joinedObj)
 				continue;
 
+			String permission = "objects/query/" + joinedObj->GetReflectionType()->GetName();
+
+			if (!FilterUtility::HasPermission(user, permission)) {
+				// The API user isn't authorized to access this relation, so just ignore it because there
+				// is no reason to raise an exception here since the actual object requested by the client
+				// has been found!!
+				continue;
+			}
+
 			String prefix = field.NavigationName;
 
 			try {
