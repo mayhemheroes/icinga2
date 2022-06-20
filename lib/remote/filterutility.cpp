@@ -124,13 +124,25 @@ static void FilteredAddTarget(ScriptFrame& permissionFrame, Expression *permissi
 	}
 }
 
-void FilterUtility::CheckPermission(const ApiUser::Ptr& user, const String& permission, Expression **permissionFilter)
+/**
+ * Checks whether the given API user is granted the given permission
+ *
+ * This is a wake type of the CheckPermission() method and does always return a boolean.
+ * If you want an exception to be raised when the user doesn't have the given permission,
+ * you need to use the other method, which performs a stricter permission check.
+ *
+ * @param user ApiUser pointer to the user object you want to check the permission of
+ * @param permission The actual permission you want to check the user permission against
+ *
+ * @return bool
+ */
+bool FilterUtility::HasPermission(const ApiUser::Ptr& user, const String& permission, Expression **permissionFilter)
 {
 	if (permissionFilter)
 		*permissionFilter = nullptr;
 
 	if (permission.IsEmpty())
-		return;
+		return true;
 
 	bool foundPermission = false;
 	String requiredPermission = permission.ToLower();
@@ -172,8 +184,15 @@ void FilterUtility::CheckPermission(const ApiUser::Ptr& user, const String& perm
 	if (!foundPermission) {
 		Log(LogWarning, "FilterUtility")
 			<< "Missing permission: " << requiredPermission;
+	}
 
-		BOOST_THROW_EXCEPTION(ScriptError("Missing permission: " + requiredPermission));
+	return foundPermission;
+}
+
+void FilterUtility::CheckPermission(const ApiUser::Ptr& user, const String& permission, Expression **permissionFilter)
+{
+	if (!HasPermission(user, permission, permissionFilter)) {
+		BOOST_THROW_EXCEPTION(ScriptError("Missing permission: " + permission.ToLower()));
 	}
 }
 
