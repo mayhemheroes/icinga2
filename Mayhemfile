@@ -1,5 +1,5 @@
-project: rnshah9/icinga2
-target: icinga2
+project: icinga2
+target: mkembedconfig
 
 cmds:
   - cmd: /repo/tools/mkembedconfig/build/mkembedconfig @@ /dev/null
