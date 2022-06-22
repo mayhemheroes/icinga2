@@ -544,8 +544,8 @@ Dictionary::Ptr ApiActions::RemoveDowntime(const ConfigObject::Ptr& object,
 	}
 }
 
-Dictionary::Ptr ApiActions::ShutdownProcess(const ConfigObject::Ptr& object,
-	const Dictionary::Ptr& params)
+Dictionary::Ptr ApiActions::ShutdownProcess(const ConfigObject::Ptr&,
+	const Dictionary::Ptr&)
 {
 	Application::RequestShutdown();
 
