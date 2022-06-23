@@ -189,6 +189,9 @@ bool ObjectQueryHandler::HandleRequest(
 		joinAttrs.insert(field.Name);
 	}
 
+	std::set<String> grantedTypes;
+	Array::Ptr resolvedObjs;
+
 	for (const ConfigObject::Ptr& obj : objs) {
 		DictionaryData result1{
 			{ "name", obj->GetName() },
@@ -257,13 +260,44 @@ bool ObjectQueryHandler::HandleRequest(
 			if (!joinedObj)
 				continue;
 
-			String permission = "objects/query/" + joinedObj->GetReflectionType()->GetName();
+			Type::Ptr reflectionType = joinedObj->GetReflectionType();
+			Expression *permissionFilter;
 
-			if (!FilterUtility::HasPermission(user, permission)) {
-				// The API user isn't authorized to access this relation, so just ignore it because there
-				// is no reason to raise an exception here since the actual object requested by the client
-				// has been found!!
-				continue;
+			if (grantedTypes.find(reflectionType->GetName()) == grantedTypes.end()) {
+				String permission = "objects/query/" + reflectionType->GetName();
+
+				if (!FilterUtility::HasPermission(user, permission, &permissionFilter)) {
+					// The API user isn't authorized to access this relation, so just ignore it because there
+					// is no reason to raise an exception here since the actual object requested by the client
+					// has been found!!
+					continue;
+				}
+
+				grantedTypes.insert(reflectionType->GetName());
+			}
+
+			if (!resolvedObjs || !resolvedObjs->Contains(joinedObj)) {
+				Namespace::Ptr frameNS = new Namespace();
+				ScriptFrame permissionFrame(false, frameNS);
+
+				/*
+				 * We're going to evaluate the permission filters of the requested base object on all the other joined
+				 * relations, so when we have a filter like {{ match(..., "host.vars......" }}, then we won't be able to
+				 * access the host object from the namespace. Therefore, we have to register the base obj type to the
+				 * namespace before evaluating the filter for joined relations.
+				 */
+				frameNS->Set(type->GetName().ToLower(), obj);
+
+				try {
+					if (!FilterUtility::EvaluateFilter(permissionFrame, permissionFilter, joinedObj)) {
+						continue;
+					}
+				} catch (const ScriptError& err) {
+					// Nothing to do just continue
+					continue;
+				}
+
+				resolvedObjs->Add(joinedObj);
 			}
 
 			String prefix = field.NavigationName;
