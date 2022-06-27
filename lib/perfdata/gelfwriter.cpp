@@ -377,13 +377,13 @@ void GelfWriter::NotificationToUserHandler(const Notification::Ptr& notification
 	if (IsPaused())
 		return;
 
-	m_WorkQueue.Enqueue([this, notification, checkable, user, notificationType, cr, author, commentText, commandName]() {
-		NotificationToUserHandlerInternal(notification, checkable, user, notificationType, cr, author, commentText, commandName);
+	m_WorkQueue.Enqueue([this, checkable, notificationType, cr, author, commentText, commandName]() {
+		NotificationToUserHandlerInternal(checkable, notificationType, cr, author, commentText, commandName);
 	});
 }
 
-void GelfWriter::NotificationToUserHandlerInternal(const Notification::Ptr& notification, const Checkable::Ptr& checkable,
-	const User::Ptr& user, NotificationType notificationType, CheckResult::Ptr const& cr,
+void GelfWriter::NotificationToUserHandlerInternal(const Checkable::Ptr& checkable,
+	NotificationType notificationType, CheckResult::Ptr const& cr,
 	const String& author, const String& commentText, const String& commandName)
 {
 	AssertOnWorkQueue();
@@ -445,10 +445,10 @@ void GelfWriter::StateChangeHandler(const Checkable::Ptr& checkable, const Check
 	if (IsPaused())
 		return;
 
-	m_WorkQueue.Enqueue([this, checkable, cr, type]() { StateChangeHandlerInternal(checkable, cr, type); });
+	m_WorkQueue.Enqueue([this, checkable, cr]() { StateChangeHandlerInternal(checkable, cr); });
 }
 
-void GelfWriter::StateChangeHandlerInternal(const Checkable::Ptr& checkable, const CheckResult::Ptr& cr, StateType type)
+void GelfWriter::StateChangeHandlerInternal(const Checkable::Ptr& checkable, const CheckResult::Ptr& cr)
 {
 	AssertOnWorkQueue();
 

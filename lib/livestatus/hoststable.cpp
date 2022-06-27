@@ -154,7 +154,7 @@ void HostsTable::AddColumns(Table *table, const String& prefix,
 		Log(LogDebug, "Livestatus")
 			<< "Processing hosts group by hostgroup table.";
 		HostGroupsTable::AddColumns(table, "hostgroup_", [](const Value& row, LivestatusGroupByType groupByType, const Object::Ptr& groupByObject) -> Value {
-			return HostGroupAccessor(row, groupByType, groupByObject);
+			return HostGroupAccessor(groupByType, groupByObject);
 		});
 	}
 }
@@ -187,7 +187,7 @@ void HostsTable::FetchRows(const AddRowFunction& addRowFn)
 	}
 }
 
-Object::Ptr HostsTable::HostGroupAccessor(const Value& row, LivestatusGroupByType groupByType, const Object::Ptr& groupByObject)
+Object::Ptr HostsTable::HostGroupAccessor(LivestatusGroupByType groupByType, const Object::Ptr& groupByObject)
 {
 	/* return the current group by value set from within FetchRows()
 	 * this is the hostgrouo object used for the table join inside
