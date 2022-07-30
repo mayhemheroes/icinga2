@@ -2,4 +2,4 @@ project: icinga2
 target: mkembedconfig
 
 cmds:
-  - cmd: /repo/tools/mkembedconfig/build/mkembedconfig @@ /dev/null
+  - cmd: /mkembedconfig @@ /dev/null
