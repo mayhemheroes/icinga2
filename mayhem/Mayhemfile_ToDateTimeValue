@@ -1,0 +1,6 @@
+project: icinga2
+target: todatetimevalue
+
+cmds:
+  - cmd: /fuzz_ToDateTimeValue
+    libfuzzer: true

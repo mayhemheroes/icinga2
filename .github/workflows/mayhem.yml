@@ -59,7 +59,8 @@ jobs:
       fail-fast: false
       matrix:
         mayhemfile:
-          - mayhem/Mayhemfile
+          - mayhem/Mayhemfile_ToDateTimeValue
+          - mayhem/Mayhemfile_mkembedconfig
 
     steps:
       - uses: actions/checkout@v3
