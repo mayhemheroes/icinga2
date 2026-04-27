@@ -1,0 +1,5 @@
+project: icinga2
+target: mkembedconfig
+
+cmds:
+  - cmd: /mkembedconfig @@ /dev/null
